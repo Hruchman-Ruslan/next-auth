@@ -1,8 +1,17 @@
+import { redirect } from "next/navigation";
+
+import { verifyAuth } from "@/lib/auth";
 import { getTrainings } from "@/lib/training";
 
 export interface TrainingPageProps {}
 
-export default function TrainingPage({}: TrainingPageProps) {
+export default async function TrainingPage({}: TrainingPageProps) {
+  const result = await verifyAuth();
+
+  if (!result.user) {
+    return redirect("/");
+  }
+
   const trainingSessions = getTrainings();
 
   return (

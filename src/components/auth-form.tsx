@@ -4,12 +4,16 @@ import Link from "next/link";
 
 import { useFormState } from "react-dom";
 
-import { signUp } from "@/actions/auth-actions";
+import { auth } from "@/actions/auth-actions";
 
-export interface AuthFormProps {}
+export interface AuthFormProps {
+  mode: string;
+}
 
-export default function AuthForm({}: AuthFormProps) {
-  const [formState, formAction] = useFormState(signUp, { errors: {} });
+export default function AuthForm({ mode }: AuthFormProps) {
+  const [formState, formAction] = useFormState(auth.bind(null, mode), {
+    errors: {},
+  });
 
   return (
     <form id="auth-form" action={formAction}>
@@ -32,10 +36,17 @@ export default function AuthForm({}: AuthFormProps) {
         </ul>
       )}
       <p>
-        <button type="submit">Create Account</button>
+        <button type="submit">
+          {mode === "login" ? "Login" : "Create Account"}
+        </button>
       </p>
       <p>
-        <Link href="/">Login with existing account.</Link>
+        {mode === "login" && (
+          <Link href="/?mode=signup">Create an account.</Link>
+        )}
+        {mode === "signup" && (
+          <Link href="/?mode=login">Login with existing account.</Link>
+        )}
       </p>
     </form>
   );
