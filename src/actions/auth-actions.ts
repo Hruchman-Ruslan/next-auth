@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 import { hashUserPassword, verifyPassword } from "@/lib/hash";
 import { createUser, getUserByEmail } from "@/lib/user";
-import { createAuthSession } from "@/lib/auth";
+import { createAuthSession, destroySession } from "@/lib/auth";
 
 interface Errors {
   [key: string]: string;
@@ -86,4 +86,9 @@ export async function auth(
     return login(prevState, formData);
   }
   return signUp(prevState, formData);
+}
+
+export async function logout() {
+  await destroySession();
+  redirect("/");
 }
