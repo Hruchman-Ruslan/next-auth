@@ -2,8 +2,8 @@
 
 import { redirect } from "next/navigation";
 
-import { hashUserPassword } from "@/lib/hash";
-import { createUser } from "@/lib/user";
+import { hashUserPassword, verifyPassword } from "@/lib/hash";
+import { createUser, getUserByEmail } from "@/lib/user";
 import { createAuthSession } from "@/lib/auth";
 
 interface Errors {
@@ -47,4 +47,43 @@ export async function signUp(_: any, formData: FormData) {
     }
     throw error;
   }
+}
+
+export async function login(_: any, formData: FormData) {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+
+  const existingUser = getUserByEmail(email);
+
+  if (!existingUser) {
+    return {
+      errors: {
+        email: "Could not authenticate user, please check your credentials.",
+      },
+    };
+  }
+
+  const isValidPassword = verifyPassword(existingUser.password, password);
+
+  if (!isValidPassword) {
+    return {
+      errors: {
+        password: "Could not authenticate user, please check your credentials.",
+      },
+    };
+  }
+
+  await createAuthSession(existingUser.id);
+  redirect("/training");
+}
+
+export async function auth(
+  mode: string,
+  prevState: string,
+  formData: FormData
+) {
+  if (mode === "login") {
+    return login(prevState, formData);
+  }
+  return signUp(prevState, formData);
 }
